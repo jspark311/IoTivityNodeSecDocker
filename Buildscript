@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Clone the current IoTivity source from github...
+git clone https://github.com/iotivity/iotivity.git
+cd iotivity
+
+# We need to pull this independently for some reason...
+git clone https://github.com/01org/tinycbor.git extlibs/tinycbor/tinycbor
+
+# If you are targeting specific platforms, this would be the line to customize.
+# 
+# We prefix with /usr so that scons install places output in a place such that
+#   our build system doesn't need to care where we built IoTivity.
+scons liboctbstack SECURED=1 RELEASE=TRUE --prefix=/usr
+
+# At this point, you could "scons c" and re-run the build to produce a separate,
+#   parallel SDK (for example, android).
+# See the IoTivity build scripts for permutations:
+# https://github.com/iotivity/iotivity/blob/master/build_common/SConscript
+#
+#scons c
+#scons RELEASE=TRUE TARGET_OS='android'
+
+#scons c
+#scons TARGET_ARCH='ARMv7'
+
+#scons c
+#scons TARGET_OS='airduino' TARGET_ARCH='avr'
+
+cd ..
+git clone https://github.com/otcshare/iotivity-node.git
+cd iotivity-node
+
+export OCTBSTACK_CFLAGS="-I/root/iotivity/resource/csdk/stack/include -I/root/iotivity/resource/c_common/ocrandom/include -I/root/iotivity/resource/c_common"
+export OCTBSTACK_LIBS="-L/root/iotivity/out/linux/x86_64/release -loctbstack -Wl,-rpath=/root/iotivity/out/linux/x86_64/release"
+
+#npm install --unsafe-perm
